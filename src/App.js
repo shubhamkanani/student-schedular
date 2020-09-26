@@ -1,25 +1,27 @@
 import React from 'react';
-import logo from './logo.svg';
+import { BrowserRouter, Route, Switch, Redirect } from 'react-router-dom';
 import './App.css';
-
+import LayoutOfApp from './components/Layout'
+// Pages
+const TeacherList = React.lazy(() => import('./container/TeacherList'));
+const StudentList = React.lazy(() => import('./container/StudentList'));
+const StudentsOfTeacher = React.lazy(() => import('./container/TeacherList/StudentListOfTeacher'))
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+
+         <BrowserRouter>
+               <LayoutOfApp>
+              <React.Suspense fallback={<div>Loading... </div>}>
+            
+            <Switch>
+              <Route exact path="/studentlist/teacher/:id" name="StudentOfTeacher Page" render={props => <StudentsOfTeacher {...props}/>} />
+              <Route exact path="/teacherlist" name="Teacher Page" render={props => <TeacherList {...props}/>} />
+              <Route exact path="/studentlist" name="Student Page" render={props => <StudentList {...props}/>} />
+              <Redirect from="/" to="/teacherlist" />
+            </Switch>
+          </React.Suspense>
+          </LayoutOfApp>
+        </BrowserRouter>
   );
 }
 

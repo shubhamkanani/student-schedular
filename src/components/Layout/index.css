@@ -1,0 +1,21 @@
+.sider{
+    overflow: auto;
+    height: 100vh;
+    position: fixed;
+    left: 0;
+}
+.sider h1{
+    color: white;
+     padding: 10px;
+}
+.child-Layout {
+    margin-left: 200;
+}
+.child-Layout .content{
+    margin: 24px 16px 0;
+}
+.child-Layout .content div{
+    padding: 24;
+     background: #fff;
+    min-height: 360 
+}
