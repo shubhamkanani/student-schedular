@@ -15,7 +15,6 @@ function LayoutOfApp({ children }, props) {
   //const { path, params } = props.match;
   return (
     <Layout>
-      {console.log("path", pathname)}
       <Sider className="sider">
         <h1>Student-Schedular</h1>
         <Menu theme="dark" mode="inline" defaultSelectedKeys={["/teacherlist"]}>
