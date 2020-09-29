@@ -1,9 +1,13 @@
 import React, { useEffect, useState } from 'react'
-import 'antd/dist/antd.css';
+import {useHistory} from 'react-router-dom'
 import { Table, PageHeader, Button, Spin, Tooltip, Row, Col } from 'antd';
+import { useDispatch } from 'react-redux'
+import 'antd/dist/antd.css';
+import '../../Assets/container/StudentList.css'
 import { getStudentList, getStudentListByFirstName, getStudentListByLastName, } from '../../services/Student'
 import SearchFilter from '../../components/StudentList/SearchFilter'
-import '../../Assets/container/StudentList.css'
+import {assignStudents} from '../../Action-Reducer/Student/action'
+
 const columns = [
     {
         title: 'Name',
@@ -73,7 +77,10 @@ const columns = [
         render: (record) => <Button>Edit</Button>,
     },
 ];
+
 function StudentList() {
+    const dispatch = useDispatch();
+    const history = useHistory();
     const [studentList, setStudentList] = useState();
     const [tableProps, setTableProps] = useState({
         totalCount: 0,
@@ -84,6 +91,19 @@ function StudentList() {
         searchValue: "",
         searchType: "firstName",
     })
+    const [selectedRow, setSelectedRow] = useState([]);
+    const rowSelection = {
+        selectedRow,
+        onChange: (selectedrow, records) => {
+            console.log('selectedRowKeys changed: ', records);
+            var recordIdArray = [];
+            records.map(record => {
+                recordIdArray.push({id:record.id,firstName:record.firstName,lastName:record.lastName})
+            })
+            setSelectedRow(recordIdArray);
+            console.log(selectedRow);
+        }
+    };
     useEffect(() => {
         getListView();
     }, [tableProps.pageIndex]);
@@ -141,7 +161,16 @@ function StudentList() {
             title="Student List View"
             extra={[
                 <Button key="1" type="primary">Genrate Calender</Button>,
-                <Button key="2" type="primary">Launch Schedule</Button>
+                <Button key="2" type="primary">Launch Schedule</Button>,
+                <Button key='3' type="primary"
+                    disabled={selectedRow.length > 0 ? false : true}
+                    onClick={()=>{
+                        dispatch(assignStudents(selectedRow))
+                        history.push('/teacherlist');
+                    }}
+                >
+                    ASSIGN STUDENT
+                </Button>
             ]}
         >
             <SearchFilter
@@ -160,6 +189,8 @@ function StudentList() {
                         pageSize: tableProps.pageSize,
                         showTotal: (total, range) => `${range[0]}-${range[1]} out of ${total}`,
                     }}
+                    rowSelection={rowSelection}
+                    rowKey="id"
                 />}
 
         </PageHeader>

@@ -1,65 +1,18 @@
 import React, { useEffect, useState } from 'react'
+import {useSelector} from 'react-redux'
 import 'antd/dist/antd.css';
 import { useHistory } from 'react-router-dom'
-import { Table, PageHeader, Button, Spin} from 'antd';
+import { Table, PageHeader, Button, Spin } from 'antd';
 import { getTeacherList, getTeacherListByFirstName, getTeacherListByLastName } from '../../services/Teacher'
 
 import SearchFilter from '../../components/TeacherList/SearchFilter'
+//import AssignStudent from '../../components/TeacherList/AssignStudent'
 
-const columns = [
-    {
-        title: 'Name',
-        render: (record) => (
-            <div>
-                {record.firstName + " " + record.lastName}
-            </div>
-        ),
-        key: 'name',
-        fixed: 'left',
-    },
-    {
-        title: 'Period',
-        dataIndex: 'period',
-        key: 'period',
-    },
-    {
-        title: 'Subjects',
-        key: 'subjects',
-        render: (record) => (
-            <div>
-                {record.subjects.map((sub) => {
-                    return <span>{sub}, </span>
-                })}
-            </div>
-        )
-    }
-    ,
-    {
-        title: 'Grades',
-        key: 'grades',
-        render: (record) => (
-            <div>
-                {record.grades.map((grad) => {
-                    return <span>{grad}, </span>
-                })}
-            </div>
-        )
-    }
-    ,
-    {
-        title: 'Student Count',
-        dataIndex: 'studentCount',
-        key: 'studentCount',
-    },
-    {
-        title: 'Action',
-        key: 'operation',
-        fixed: 'right',
-        render: (record) => <Button>Edit</Button>,
-    },
-];
 function TeacherList() {
     const history = useHistory();
+    const assignStudentList = useSelector((state) => {
+        return state.Student;
+      })
     const [teacherList, setTeacherList] = useState();
     const [tableProps, setTableProps] = useState({
         totalCount: 0,
@@ -70,10 +23,63 @@ function TeacherList() {
         searchValue: "",
         searchType: "firstName",
     })
+    const columns = [
+        {
+            title: 'Name',
+            render: (record) => (
+                <div>
+                    {record.firstName + " " + record.lastName}
+                </div>
+            ),
+            key: 'name',
+            fixed: 'left',
+        },
+        {
+            title: 'Period',
+            dataIndex: 'period',
+            key: 'period',
+        },
+        {
+            title: 'Subjects',
+            key: 'subjects',
+            render: (record) => (
+                <div>
+                    {
+                        record.subjects.join(', ')
+                    }
+                </div>
+            )
+        }
+        ,
+        {
+            title: 'Grades',
+            key: 'grades',
+            render: (record) => (
+                <div>
+                    {record.grades.join(', ')}
+                </div>
+            )
+        }
+        ,
+        {
+            title: 'Student Count',
+            dataIndex: 'studentCount',
+            key: 'studentCount',
+        },
+        {
+            title: 'Action',
+            key: 'operation',
+            fixed: 'right',
+            render:(record) => {
+                return (
+                    <Button onClick={()=>{console.log(assignStudentList)}}>Assign Students</Button>
+                )
+            },
+        },
+    ];
     useEffect(() => {
         getListView();
-    },[tableProps.pageIndex]);
-
+    }, [tableProps.pageIndex]);
     const getListView = () => {
         if (search.searchValue === "") {
             getTeacherList(tableProps.pageIndex, tableProps.pageSize).then(data => {
@@ -136,21 +142,21 @@ function TeacherList() {
                 searchList={searchList}
                 defultType={search.searchType}
             />
-            {!teacherList ? <Spin className="loading-table"/>: 
-            <Table
-                className="table-padding"
-                columns={columns}
-                dataSource={teacherList}
-                onChange={handleTableChange}
-                pagination={{
-                    total: tableProps.totalCount,
-                    pageSize: tableProps.pageSize,
-                    showTotal: (total, range) => `${range[0]}-${range[1]} out of ${total}`,
-                }}
-                onRow={(record) => ({
-                    onClick: () => (history.push(`/studentlist/teacher/${record.id}`))
-                })}
-            />}
+            {!teacherList ? <Spin className="loading-table" /> :
+                <Table
+                    className="table-padding"
+                    columns={columns}
+                    dataSource={teacherList}
+                    onChange={handleTableChange}
+                    pagination={{
+                        total: tableProps.totalCount,
+                        pageSize: tableProps.pageSize,
+                        showTotal: (total, range) => `${range[0]}-${range[1]} out of ${total}`,
+                    }}
+                    onRow={(record) => ({
+                        onClick: () => (history.push(`/studentlist/teacher/${record.id}`))
+                    })}
+                />}
 
         </PageHeader>
     )
