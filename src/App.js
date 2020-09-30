@@ -6,26 +6,23 @@ import LayoutOfApp from './components/Layout'
 const TeacherList = React.lazy(() => import('./container/TeacherList'));
 const StudentList = React.lazy(() => import('./container/StudentList'));
 const StudentsOfTeacher = React.lazy(() => import('./container/TeacherList/StudentListOfTeacher'));
-const StudentDetail = React.lazy(()=>import('./container/StudentList/StudentDetail'))
+const StudentDetail = React.lazy(() => import('./container/StudentList/StudentDetail'))
 function App() {
   return (
 
-         <BrowserRouter>
-               <LayoutOfApp>
-              <React.Suspense fallback={<div>Loading... </div>}>
-            
-            <Switch>
-            
-              <Route exact path="/studentlist/teacher/:id" name="StudentOfTeacher Page" render={props => <StudentsOfTeacher {...props}/>} />
-              <Route exact path="/teacherlist" name="Teacher Page" render={props => <TeacherList {...props}/>} />
-              <Route exact path="/studentlist" name="Student Page" render={props => <StudentList {...props}/>} />
-              <Route exact path="/studentlist/studentDetail/:id" name="Student Page" render={props => <StudentDetail {...props}/>} />
-              <Redirect from="/" to="/teacherlist" />
-              
-            </Switch>
+    <BrowserRouter>
+      <Switch>
+        <LayoutOfApp>
+          <React.Suspense fallback={<div>Loading... </div>}>
+            <Route exact path="/studentlist/teacher/:id" name="StudentOfTeacher Page" render={props => <StudentsOfTeacher {...props} />} />
+            <Route exact path="/teacherlist" name="Teacher Page" render={props => <TeacherList {...props} />} />
+            <Route exact path="/studentlist" name="Student Page" render={props => <StudentList {...props} />} />
+            <Route exact path="/studentlist/studentDetail/:id" name="Student Page" render={props => <StudentDetail {...props} />} />
+            <Redirect from="/" to="/teacherlist" />
           </React.Suspense>
-          </LayoutOfApp>
-        </BrowserRouter>
+        </LayoutOfApp>
+      </Switch>
+    </BrowserRouter>
   );
 }
 
