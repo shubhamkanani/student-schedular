@@ -14,8 +14,8 @@ export const getTeacherList = (page,size,sortName,sortType) =>{
 //         })
 // }
 
-export const findTeacherListByFirstNameAndLastName = (firstName,lastName) =>{
-    return axios.get(`http://tower.watu.fi:8080/teachers/search/findByFirstNameIgnoreCaseContainingOrLastNameIgnoreCaseContaining?firstName=${firstName}&lastName=${lastName}`)
+export const findTeacherListByFirstNameAndLastName = (firstName,lastName,sortName,sortType) =>{
+    return axios.get(`http://tower.watu.fi:8080/teachers/search/findByFirstNameIgnoreCaseContainingOrLastNameIgnoreCaseContaining?firstName=${firstName}&lastName=${lastName}&sort=${sortName},${sortType}`)
         .then(res =>{
             return res.data;
         })

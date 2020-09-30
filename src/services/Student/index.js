@@ -30,8 +30,8 @@ export const getStudentDetail = (studentId) =>{
         })
 }
 
-export const findStudentListByFirstNameAndLastName = (firstName,lastName) =>{
-    return axios.get(`http://tower.watu.fi:8080/students/search/findByFirstNameIgnoreCaseContainingOrLastNameIgnoreCaseContaining?firstName=${firstName}&lastName=${lastName}`)
+export const findStudentListByFirstNameAndLastName = (firstName,lastName,sortName,sortType) =>{
+    return axios.get(`http://tower.watu.fi:8080/students/search/findByFirstNameIgnoreCaseContainingOrLastNameIgnoreCaseContaining?firstName=${firstName}&lastName=${lastName}&sort=${sortName},${sortType}`)
         .then(res =>{
             return res.data;
         })

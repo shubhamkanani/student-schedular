@@ -1,4 +1,5 @@
 import React,{useState,useEffect} from 'react'
+import {useHistory} from 'react-router-dom'
 import 'antd/dist/antd.css';
 import { Table, PageHeader, Button,Spin} from 'antd';
 import {getStudentListById} from '../../services/Student'
@@ -42,6 +43,7 @@ const columns = [
 function StudentListOfTeacher(props) {
     const {params} = props.match;
     const [studentList,setStudentList] = useState();
+    const history = useHistory();
     useEffect(() => {
         getListView();
     },[]);
@@ -66,7 +68,10 @@ function StudentListOfTeacher(props) {
                 {!studentList?<Spin/>:
                     <Table 
                 columns={columns} 
-                dataSource={studentList} 
+                dataSource={studentList}
+                onRow={(record) => ({
+                    onClick: () => (history.push(`/studentlist/studentDetail/${record.id}`))
+                })} 
                 />
                 }
             </PageHeader>

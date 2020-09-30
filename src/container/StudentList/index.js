@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from 'react'
-import {useHistory} from 'react-router-dom'
+import { useHistory } from 'react-router-dom'
 import { Table, PageHeader, Button, Spin, Tooltip, Row, Col } from 'antd';
 import { useDispatch } from 'react-redux'
 import 'antd/dist/antd.css';
 import '../../Assets/container/StudentList.css'
 import { getStudentList, findStudentListByFirstNameAndLastName, } from '../../services/Student'
 import SearchFilter from '../../components/StudentList/SearchFilter'
-import {assignStudents} from '../../Action-Reducer/Student/action'
+import { assignStudents } from '../../Action-Reducer/Student/action'
 
 //icon
 
@@ -25,7 +25,7 @@ function StudentList() {
         pageSize: 30,
     });
     const [search, setSearch] = useState({
-        name:"",
+        name: "",
         firstName: "",
         lastName: "",
     })
@@ -36,7 +36,7 @@ function StudentList() {
             console.log('selectedRowKeys changed: ', records);
             var recordIdArray = [];
             records.map(record => {
-                recordIdArray.push({id:record.id,firstName:record.firstName,lastName:record.lastName})
+                recordIdArray.push({ id: record.id, firstName: record.firstName, lastName: record.lastName })
             })
             setSelectedRow(recordIdArray);
             console.log(selectedRow);
@@ -46,9 +46,9 @@ function StudentList() {
     const columns = [
         {
             title: <div><span>Name </span>
-                {sortingName === "firstName" && sortingType==="asc" && <VerticalAlignBottomOutlined />}
-                {sortingName === "firstName" && sortingType==="desc" && <VerticalAlignTopOutlined />}
-                {sortingName === "firstName" && sortingType==="" && ""}
+                {sortingName === "firstName" && sortingType === "asc" && <VerticalAlignBottomOutlined />}
+                {sortingName === "firstName" && sortingType === "desc" && <VerticalAlignTopOutlined />}
+                {sortingName === "firstName" && sortingType === "" && ""}
             </div>,
             onHeaderCell: (column) => {
                 return {
@@ -56,7 +56,7 @@ function StudentList() {
                         setSortingName("firstName");
                         if (sortingType == "") { setSortingType("asc") }
                         else if (sortingType == "asc") { setSortingType("desc") }
-                        else if (sortingType == "desc") { setSortingType("");setSortingName(""); }
+                        else if (sortingType == "desc") { setSortingType(""); setSortingName(""); }
                     }
                 };
             },
@@ -75,9 +75,9 @@ function StudentList() {
         },
         {
             title: <div><span>Subject </span>
-                {sortingName === "subject" && sortingType==="asc" && <VerticalAlignBottomOutlined />}
-                {sortingName === "subject" && sortingType==="desc" && <VerticalAlignTopOutlined />}
-                {sortingName === "subject" && sortingType==="" && ""}
+                {sortingName === "subject" && sortingType === "asc" && <VerticalAlignBottomOutlined />}
+                {sortingName === "subject" && sortingType === "desc" && <VerticalAlignTopOutlined />}
+                {sortingName === "subject" && sortingType === "" && ""}
             </div>,
             onHeaderCell: (column) => {
                 return {
@@ -85,7 +85,7 @@ function StudentList() {
                         setSortingName("subject");
                         if (sortingType == "") { setSortingType("asc") }
                         else if (sortingType == "asc") { setSortingType("desc") }
-                        else if (sortingType == "desc") { setSortingType("");setSortingName(""); }
+                        else if (sortingType == "desc") { setSortingType(""); setSortingName(""); }
                     }
                 };
             },
@@ -95,9 +95,9 @@ function StudentList() {
         ,
         {
             title: <div><span>Grade </span>
-                {sortingName === "grade" && sortingType==="asc" && <VerticalAlignBottomOutlined />}
-                {sortingName === "grade" && sortingType==="desc" && <VerticalAlignTopOutlined />}
-                {sortingName === "grade" && sortingType==="" && ""}
+                {sortingName === "grade" && sortingType === "asc" && <VerticalAlignBottomOutlined />}
+                {sortingName === "grade" && sortingType === "desc" && <VerticalAlignTopOutlined />}
+                {sortingName === "grade" && sortingType === "" && ""}
             </div>,
             onHeaderCell: (column) => {
                 return {
@@ -105,7 +105,7 @@ function StudentList() {
                         setSortingName("grade");
                         if (sortingType == "") { setSortingType("asc") }
                         else if (sortingType == "asc") { setSortingType("desc") }
-                        else if (sortingType == "desc") { setSortingType("");setSortingName(""); }
+                        else if (sortingType == "desc") { setSortingType(""); setSortingName(""); }
                     }
                 };
             },
@@ -151,7 +151,13 @@ function StudentList() {
             title: 'Action',
             key: 'operation',
             fixed: 'right',
-            render: (record) => <Button>Edit</Button>,
+            render: (record) => <Tooltip title={record.teacher.conferenceUrl ? record.teacher.conferenceUrl : "Link Is Not Found"}>
+                <Button onClick={(e)=>{
+                    e.stopPropagation();
+                    window.open(record.teacher.conferenceUrl)
+                    }} 
+                disabled={record.teacher.conferenceUrl}>Google Meet</Button>
+            </Tooltip>,
         },
     ];
 
@@ -160,7 +166,7 @@ function StudentList() {
     }, [tableProps.pageIndex]);
     useEffect(() => {
         getListView();
-    }, [sortingType,sortingName]);
+    }, [sortingType, sortingName]);
     const getListView = () => {
         console.log(sortingType);
         setStudentList("");
@@ -174,7 +180,7 @@ function StudentList() {
             })
         }
         else {
-            findStudentListByFirstNameAndLastName(search.firstName,search.lastName).then(data => {
+            findStudentListByFirstNameAndLastName(search.firstName, search.lastName,sortingName,sortingType).then(data => {
                 setStudentList(data._embedded.students)
                 setTableProps({
                     totalCount: 1,
@@ -187,13 +193,13 @@ function StudentList() {
     const changeSearch = (e) => {
         const { name, value } = e.target;
         setSearch({ ...search, [name]: value });
-        if(e.target.name==="name"){
+        if (e.target.name === "name") {
             var nameData = value.split(" ");
-            if(nameData.length>1){
-                setSearch({ ...search, firstName: nameData[0],lastName: nameData[1] });
+            if (nameData.length > 1) {
+                setSearch({ ...search, firstName: nameData[0], lastName: nameData[1] });
             }
-            else{
-                setSearch({ ...search, firstName: nameData[0],lastName: nameData[0] });
+            else {
+                setSearch({ ...search, firstName: nameData[0], lastName: nameData[0] });
             }
         }
     };
@@ -216,7 +222,7 @@ function StudentList() {
                 <Button key="2" type="primary">Launch Schedule</Button>,
                 <Button key='3' type="primary"
                     disabled={selectedRow.length > 0 ? false : true}
-                    onClick={()=>{
+                    onClick={() => {
                         dispatch(assignStudents(selectedRow))
                         history.push('/teacherlist');
                     }}
@@ -242,6 +248,9 @@ function StudentList() {
                     }}
                     rowSelection={rowSelection}
                     rowKey="id"
+                    onRow={(record) => ({
+                        onClick: () => (history.push(`/studentlist/studentDetail/${record.id}`))
+                    })}
                 />}
 
         </PageHeader>

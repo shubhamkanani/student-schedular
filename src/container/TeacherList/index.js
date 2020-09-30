@@ -131,7 +131,7 @@ function TeacherList() {
                             cancelText="Cancel"
                             disabled={assignStudentList.length > 0 ? false : true}
                         >
-                            <Button disabled={assignStudentList.length > 0 ? false : true}>Assign Students</Button>
+                            <Button disabled={assignStudentList.length > 0 ? false : true} onClick={(e) => e.stopPropagation()}>Assign Students</Button>
                         </Popconfirm>
                     </div>
                 )
@@ -158,7 +158,7 @@ function TeacherList() {
         }
         else {
 
-            findTeacherListByFirstNameAndLastName(search.firstName,search.lastName).then(data => {
+            findTeacherListByFirstNameAndLastName(search.firstName,search.lastName,sortingName,sortingType).then(data => {
                 setTeacherList(data._embedded.teachers)
                 setTableProps({
                     totalCount: 1,
