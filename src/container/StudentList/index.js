@@ -30,6 +30,7 @@ function StudentList() {
         lastName: "",
     })
     const [selectedRow, setSelectedRow] = useState([]);
+    const [loading, setLoading] = useState(false);
     const rowSelection = {
         selectedRow,
         onChange: (selectedrow, records) => {
@@ -151,12 +152,14 @@ function StudentList() {
             title: 'Action',
             key: 'operation',
             fixed: 'right',
-            render: (record) => <Tooltip title={record.teacher.conferenceUrl ? record.teacher.conferenceUrl : "Link Is Not Found"}>
-                <Button onClick={(e)=>{
-                    e.stopPropagation();
-                    window.open(record.teacher.conferenceUrl)
-                    }} 
-                disabled={!record.teacher.conferenceUrl}>Google Meet</Button>
+            render: (record) => <Tooltip title={record.teacher.conferenceUrl ? record.teacher.conferenceUrl : "Link Not Found"}>
+                <Button
+                    style={{backgroundColor:"transparent",border:"0px",color:"#1890FF"}}
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        window.open(record.teacher.conferenceUrl)
+                    }}
+                    disabled={!record.teacher.conferenceUrl}><u>Google Meet</u></Button>
             </Tooltip>,
         },
     ];
@@ -168,8 +171,6 @@ function StudentList() {
         getListView();
     }, [sortingType, sortingName]);
     const getListView = () => {
-        console.log(sortingType);
-        setStudentList("");
         if (search.firstName === "" && search.lastName === "") {
             getStudentList(tableProps.pageIndex, tableProps.pageSize, sortingName, sortingType).then(data => {
                 setStudentList(data._embedded.students)
@@ -177,16 +178,18 @@ function StudentList() {
                     ...tableProps,
                     totalCount: data.page.totalElements,
                 });
+                setLoading(false);
             })
         }
         else {
-            findStudentListByFirstNameAndLastName(search.firstName, search.lastName,sortingName,sortingType).then(data => {
+            findStudentListByFirstNameAndLastName(search.firstName, search.lastName, sortingName, sortingType).then(data => {
                 setStudentList(data._embedded.students)
                 setTableProps({
                     totalCount: 1,
                     pageIndex: 0,
                     pageSize: 30,
                 });
+                setLoading(false);
             })
         }
     }
@@ -212,6 +215,8 @@ function StudentList() {
             pageIndex: pagination.current,
             pageSize: pagination.pageSize,
         });
+        setLoading(true);
+        setStudentList([]);
     };
     return (
         <PageHeader
@@ -239,6 +244,7 @@ function StudentList() {
                 <Table
                     className="table-padding"
                     columns={columns}
+                    loading={loading}
                     dataSource={studentList}
                     onChange={handleTableChange}
                     pagination={{

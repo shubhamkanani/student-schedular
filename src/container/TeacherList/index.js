@@ -25,6 +25,7 @@ function TeacherList() {
         pageIndex: 0,
         pageSize: 30,
     });
+    const [loading,setLoading] = useState(false)
     const [search, setSearch] = useState({
         name:"",
         firstName:"",
@@ -38,6 +39,37 @@ function TeacherList() {
             </div>
         })}
     </div>
+    
+    useEffect(() => {
+        getListView();
+    }, [tableProps.pageIndex]);
+    useEffect(() => {
+        getListView();
+    }, [sortingType,sortingName]);
+    const getListView = () => {
+        if (search.firstName === "" && search.lastName === "") {
+            getTeacherList(tableProps.pageIndex, tableProps.pageSize, sortingName, sortingType).then(data => {
+                setTeacherList(data._embedded.teachers)
+                setTableProps({
+                    ...tableProps,
+                    totalCount: data.page.totalElements,
+                });
+                setLoading(false);
+            })
+        }
+        else {
+
+            findTeacherListByFirstNameAndLastName(search.firstName,search.lastName,sortingName,sortingType).then(data => {
+                setTeacherList(data._embedded.teachers)
+                setTableProps({
+                    totalCount: 1,
+                    pageIndex: 0,
+                    pageSize: 30,
+                });
+                setLoading(false);
+            })
+        }
+    }
     const columns = [
         {
             title: <div><span>Name </span>
@@ -111,13 +143,18 @@ function TeacherList() {
             fixed: 'right',
             render: (record) => {
                 const confirm = (e) => {
+                    e.stopPropagation();
                     let studentIdArray = [];
                     assignStudentList.map((student) => {
                         studentIdArray.push(student.id)
                     })
                     let studentIds = studentIdArray.join(',');
                     assignStudentlistToTeacher(record.id, studentIds)
-                        .then(res => { console.log(res) })
+                        .then(res => {
+                            setLoading(true);
+                            dispatch(assignStudents([])); 
+                            getListView(); 
+                        })
                 }
                 return (
                     <div>
@@ -126,7 +163,7 @@ function TeacherList() {
                             title={Assigntitle}
                             placement="left"
                             onConfirm={confirm}
-                            onCancel={() => { dispatch(assignStudents([])) }}
+                            onCancel={(e) => {e.stopPropagation(); dispatch(assignStudents([])) }}
                             okText="Assign"
                             cancelText="Cancel"
                             disabled={assignStudentList.length > 0 ? false : true}
@@ -138,43 +175,15 @@ function TeacherList() {
             },
         },
     ];
-    useEffect(() => {
-        getListView();
-    }, [tableProps.pageIndex]);
-    useEffect(() => {
-        getListView();
-    }, [sortingType,sortingName]);
-    const getListView = () => {
-        console.log(sortingType);
-        setTeacherList("");
-        if (search.firstName === "" && search.lastName === "") {
-            getTeacherList(tableProps.pageIndex, tableProps.pageSize, sortingName, sortingType).then(data => {
-                setTeacherList(data._embedded.teachers)
-                setTableProps({
-                    ...tableProps,
-                    totalCount: data.page.totalElements,
-                });
-            })
-        }
-        else {
 
-            findTeacherListByFirstNameAndLastName(search.firstName,search.lastName,sortingName,sortingType).then(data => {
-                setTeacherList(data._embedded.teachers)
-                setTableProps({
-                    totalCount: 1,
-                    pageIndex: 0,
-                    pageSize: 30,
-                });
-            })
-        }
-    }
     const handleTableChange = (pagination, filters, sorter) => {
         setTableProps({
             ...tableProps,
             pageIndex: pagination.current,
             pageSize: pagination.pageSize,
         });
-        // getListView();
+        setLoading(true);
+        setTeacherList([]);
     };
     const changeSearch = (e) => {
         const { name, value } = e.target;
@@ -209,6 +218,7 @@ function TeacherList() {
                 <Table
                     className="table-padding"
                     columns={columns}
+                    loading={loading}
                     dataSource={teacherList}
                     onChange={handleTableChange}
                     pagination={{

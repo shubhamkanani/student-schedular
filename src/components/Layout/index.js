@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import 'antd/dist/antd.css';
 import '../../Assets/Layout.css'
 import { useHistory } from 'react-router-dom'
@@ -11,13 +11,12 @@ const { Sider, Content } = Layout;
 
 function LayoutOfApp({ children }, props) {
   const history = useHistory();
-  // var pathname = window.location.pathname;
-  //const { path, params } = props.match;
+  const [pathName,setPathName]=useState( window.location.pathname);
   return (
     <Layout>
       <Sider className="sider">
         <h1>Student-Schedular</h1>
-        <Menu theme="dark" mode="inline" defaultSelectedKeys={["/teacherlist"]}>
+        <Menu theme="dark" mode="inline" defaultSelectedKeys={[pathName]}>
           <Menu.Item key="/teacherlist" icon={<VideoCameraOutlined />} onClick={() => { history.push('/teacherlist') }}>
             Teacher List
             </Menu.Item>

@@ -6,7 +6,7 @@ const SearchFilter = ({changeInput,searchList}) => {
 
     return (
         <Form layout="inline">
-            <Form.Item label="Name">
+            <Form.Item>
                 <Input
                     type="text"
                     placeholder="Enter Name"
