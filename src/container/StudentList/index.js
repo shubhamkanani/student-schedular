@@ -151,12 +151,12 @@ function StudentList() {
             title: 'Action',
             key: 'operation',
             fixed: 'right',
-            render: (record) => <Tooltip title={!record.teacher.conferenceUrl ? record.teacher.conferenceUrl : "Link Is Not Found"}>
+            render: (record) => <Tooltip title={record.teacher.conferenceUrl ? record.teacher.conferenceUrl : "Link Is Not Found"}>
                 <Button onClick={(e)=>{
                     e.stopPropagation();
                     window.open(record.teacher.conferenceUrl)
                     }} 
-                disabled={record.teacher.conferenceUrl}>Google Meet</Button>
+                disabled={!record.teacher.conferenceUrl}>Google Meet</Button>
             </Tooltip>,
         },
     ];
