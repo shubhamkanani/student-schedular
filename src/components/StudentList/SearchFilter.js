@@ -2,26 +2,15 @@ import React from 'react'
 import { Form, Select, Input, Button } from 'antd'
 
 const { Option } = Select;
-const SearchFilter = ({changeInput,defultType,searchList}) => {
+const SearchFilter = ({changeInput,searchList}) => {
 
     return (
         <Form layout="inline">
-            <Form.Item>
-                <Select
-                    defaultValue={defultType}
-                    onChange={(val) =>
-						changeInput({ target: { name: 'searchType', value: val } })
-					}
-                >
-                    <Option value="firstName">First Name</Option>
-                    <Option value="lastName">Last Name</Option>
-                </Select>
-            </Form.Item>
-            <Form.Item>
+            <Form.Item label="Name">
                 <Input
                     type="text"
                     placeholder="Enter Name"
-                    name="searchValue"
+                    name="name"
                     onChange={changeInput}
                 />
             </Form.Item>

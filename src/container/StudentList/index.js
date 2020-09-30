@@ -4,92 +4,30 @@ import { Table, PageHeader, Button, Spin, Tooltip, Row, Col } from 'antd';
 import { useDispatch } from 'react-redux'
 import 'antd/dist/antd.css';
 import '../../Assets/container/StudentList.css'
-import { getStudentList, getStudentListByFirstName, getStudentListByLastName, } from '../../services/Student'
+import { getStudentList, findStudentListByFirstNameAndLastName, } from '../../services/Student'
 import SearchFilter from '../../components/StudentList/SearchFilter'
 import {assignStudents} from '../../Action-Reducer/Student/action'
 
-const columns = [
-    {
-        title: 'Name',
-        render: (record) => (
-            <div>
-                {record.firstName + " " + record.lastName}
-            </div>
-        ),
-        key: 'name',
-        fixed: 'left',
-    },
-    {
-        title: 'Period',
-        dataIndex: 'period',
-        key: 'period',
-    },
-    {
-        title: 'Subject',
-        dataIndex: 'subject',
-        key: 'subject',
-    }
-    ,
-    {
-        title: 'Grades',
-        render: (record) => {
-            const indexGrade = () => {
-                var min = record.teacher.grades[0];
-                record.teacher.grades.map(iteam => {
-                    const gradeindex = Math.sqrt(Math.pow(iteam - record.grade, 2))
-                    if (gradeindex < min) {
-                        min = gradeindex;
-                    }
-                    return null;
-                })
-                return min;
-            }
-            return (
-                <span>{indexGrade() > 0 ? `${record.grade} (${indexGrade()})` : record.grade}</span>
-            )
-        },
-        key: 'grade',
-    }
-    ,
-    {
-        title: 'Teacher Name',
-        render: (record) => {
-            var isSubjectContains = record.teacher.subjects.includes(record.subject)
-            const text = <div className="grade-coloumn-tooltip">
-                <h4>Details :</h4>
-                <Row>Subjects : {record.teacher.subjects.join(', ')}</Row>
-                <Row>Grades : {record.teacher.grades.join(', ')}</Row>
-            </div>
-            return (
-                <Tooltip placement="topLeft" title={text} color={"white"}>
-                    <div style={{ color: !isSubjectContains ? 'orange' : '' }}>
-                        {record.teacher.firstName + " " + record.teacher.lastName + " (" + record.teacher.studentCount + ")"}
-                    </div>
-                </Tooltip>
-            )
-        },
-        key: 'studentCount',
-    },
-    {
-        title: 'Action',
-        key: 'operation',
-        fixed: 'right',
-        render: (record) => <Button>Edit</Button>,
-    },
-];
+//icon
+
+import { VerticalAlignBottomOutlined, VerticalAlignTopOutlined } from "@ant-design/icons"
+
 
 function StudentList() {
     const dispatch = useDispatch();
     const history = useHistory();
     const [studentList, setStudentList] = useState();
+    const [sortingName, setSortingName] = useState("");
+    const [sortingType, setSortingType] = useState("");
     const [tableProps, setTableProps] = useState({
         totalCount: 0,
         pageIndex: 0,
         pageSize: 30,
     });
     const [search, setSearch] = useState({
-        searchValue: "",
-        searchType: "firstName",
+        name:"",
+        firstName: "",
+        lastName: "",
     })
     const [selectedRow, setSelectedRow] = useState([]);
     const rowSelection = {
@@ -104,13 +42,130 @@ function StudentList() {
             console.log(selectedRow);
         }
     };
+
+    const columns = [
+        {
+            title: <div><span>Name </span>
+                {sortingName === "firstName" && sortingType==="asc" && <VerticalAlignBottomOutlined />}
+                {sortingName === "firstName" && sortingType==="desc" && <VerticalAlignTopOutlined />}
+                {sortingName === "firstName" && sortingType==="" && ""}
+            </div>,
+            onHeaderCell: (column) => {
+                return {
+                    onClick: () => {
+                        setSortingName("firstName");
+                        if (sortingType == "") { setSortingType("asc") }
+                        else if (sortingType == "asc") { setSortingType("desc") }
+                        else if (sortingType == "desc") { setSortingType("");setSortingName(""); }
+                    }
+                };
+            },
+            render: (record) => (
+                <div>
+                    {record.firstName + " " + record.lastName}
+                </div>
+            ),
+            key: 'name',
+            fixed: 'left',
+        },
+        {
+            title: 'Period',
+            dataIndex: 'period',
+            key: 'period',
+        },
+        {
+            title: <div><span>Subject </span>
+                {sortingName === "subject" && sortingType==="asc" && <VerticalAlignBottomOutlined />}
+                {sortingName === "subject" && sortingType==="desc" && <VerticalAlignTopOutlined />}
+                {sortingName === "subject" && sortingType==="" && ""}
+            </div>,
+            onHeaderCell: (column) => {
+                return {
+                    onClick: () => {
+                        setSortingName("subject");
+                        if (sortingType == "") { setSortingType("asc") }
+                        else if (sortingType == "asc") { setSortingType("desc") }
+                        else if (sortingType == "desc") { setSortingType("");setSortingName(""); }
+                    }
+                };
+            },
+            dataIndex: 'subject',
+            key: 'subject',
+        }
+        ,
+        {
+            title: <div><span>Grade </span>
+                {sortingName === "grade" && sortingType==="asc" && <VerticalAlignBottomOutlined />}
+                {sortingName === "grade" && sortingType==="desc" && <VerticalAlignTopOutlined />}
+                {sortingName === "grade" && sortingType==="" && ""}
+            </div>,
+            onHeaderCell: (column) => {
+                return {
+                    onClick: () => {
+                        setSortingName("grade");
+                        if (sortingType == "") { setSortingType("asc") }
+                        else if (sortingType == "asc") { setSortingType("desc") }
+                        else if (sortingType == "desc") { setSortingType("");setSortingName(""); }
+                    }
+                };
+            },
+            render: (record) => {
+                const indexGrade = () => {
+                    var min = record.teacher.grades[0];
+                    record.teacher.grades.map(iteam => {
+                        const gradeindex = Math.sqrt(Math.pow(iteam - record.grade, 2))
+                        if (gradeindex < min) {
+                            min = gradeindex;
+                        }
+                        return null;
+                    })
+                    return min;
+                }
+                return (
+                    <span>{indexGrade() > 0 ? `${record.grade} (${indexGrade()})` : record.grade}</span>
+                )
+            },
+            key: 'grade',
+        }
+        ,
+        {
+            title: 'Teacher Name',
+            render: (record) => {
+                var isSubjectContains = record.teacher.subjects.includes(record.subject)
+                const text = <div className="grade-coloumn-tooltip">
+                    <h4>Details :</h4>
+                    <Row>Subjects : {record.teacher.subjects.join(', ')}</Row>
+                    <Row>Grades : {record.teacher.grades.join(', ')}</Row>
+                </div>
+                return (
+                    <Tooltip placement="topLeft" title={text} color={"white"}>
+                        <div style={{ color: !isSubjectContains ? 'orange' : '' }}>
+                            {record.teacher.firstName + " " + record.teacher.lastName + " (" + record.teacher.studentCount + ")"}
+                        </div>
+                    </Tooltip>
+                )
+            },
+            key: 'studentCount',
+        },
+        {
+            title: 'Action',
+            key: 'operation',
+            fixed: 'right',
+            render: (record) => <Button>Edit</Button>,
+        },
+    ];
+
     useEffect(() => {
         getListView();
     }, [tableProps.pageIndex]);
-
+    useEffect(() => {
+        getListView();
+    }, [sortingType,sortingName]);
     const getListView = () => {
-        if (search.searchValue === "") {
-            getStudentList(tableProps.pageIndex, tableProps.pageSize).then(data => {
+        console.log(sortingType);
+        setStudentList("");
+        if (search.firstName === "" && search.lastName === "") {
+            getStudentList(tableProps.pageIndex, tableProps.pageSize, sortingName, sortingType).then(data => {
                 setStudentList(data._embedded.students)
                 setTableProps({
                     ...tableProps,
@@ -119,31 +174,28 @@ function StudentList() {
             })
         }
         else {
-            if (search.searchType === "firstName") {
-                getStudentListByFirstName(search.searchValue).then(data => {
-                    setStudentList(data._embedded.students)
-                    setTableProps({
-                        totalCount: 0,
-                        pageIndex: 0,
-                        pageSize: 30,
-                    });
-                })
-            }
-            else if (search.searchType === "lastName") {
-                getStudentListByLastName(search.searchValue).then(data => {
-                    setStudentList(data._embedded.students)
-                    setTableProps({
-                        totalCount: 0,
-                        pageIndex: 0,
-                        pageSize: 30,
-                    });
-                })
-            }
+            findStudentListByFirstNameAndLastName(search.firstName,search.lastName).then(data => {
+                setStudentList(data._embedded.students)
+                setTableProps({
+                    totalCount: 1,
+                    pageIndex: 0,
+                    pageSize: 30,
+                });
+            })
         }
     }
     const changeSearch = (e) => {
         const { name, value } = e.target;
         setSearch({ ...search, [name]: value });
+        if(e.target.name==="name"){
+            var nameData = value.split(" ");
+            if(nameData.length>1){
+                setSearch({ ...search, firstName: nameData[0],lastName: nameData[1] });
+            }
+            else{
+                setSearch({ ...search, firstName: nameData[0],lastName: nameData[0] });
+            }
+        }
     };
     const searchList = () => {
         getListView();
@@ -176,7 +228,6 @@ function StudentList() {
             <SearchFilter
                 changeInput={changeSearch}
                 searchList={searchList}
-                defultType={search.searchType}
             />
             {!studentList ? <Spin className="loading-table" /> :
                 <Table

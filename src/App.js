@@ -5,7 +5,8 @@ import LayoutOfApp from './components/Layout'
 // Pages
 const TeacherList = React.lazy(() => import('./container/TeacherList'));
 const StudentList = React.lazy(() => import('./container/StudentList'));
-const StudentsOfTeacher = React.lazy(() => import('./container/TeacherList/StudentListOfTeacher'))
+const StudentsOfTeacher = React.lazy(() => import('./container/TeacherList/StudentListOfTeacher'));
+const StudentDetail = React.lazy(()=>import('./container/StudentList/StudentDetail'))
 function App() {
   return (
 
@@ -17,6 +18,7 @@ function App() {
               <Route exact path="/studentlist/teacher/:id" name="StudentOfTeacher Page" render={props => <StudentsOfTeacher {...props}/>} />
               <Route exact path="/teacherlist" name="Teacher Page" render={props => <TeacherList {...props}/>} />
               <Route exact path="/studentlist" name="Student Page" render={props => <StudentList {...props}/>} />
+              <Route exact path="/studentlist/studentDetail/:id" name="Student Page" render={props => <StudentDetail {...props}/>} />
               <Redirect from="/" to="/teacherlist" />
             </Switch>
           </React.Suspense>

@@ -5,25 +5,47 @@ export const getStudentListById = (TeacherId) =>{
             console.log(res.data);
             return res.data;
         })
-}
-
-export const getStudentList = (page,size) =>{
-    return axios.get(`http://tower.watu.fi:8080/students?page=${page}&size=${size}`)
-        .then(res =>{
-            return res.data;
+        .catch(err =>{
+            alert(err.message);
         })
 }
 
-export const getStudentListByFirstName = (name) =>{
-    return axios.get(`http://tower.watu.fi:8080/students/search/findByFirstName?name=${name}`)
+export const getStudentList = (page,size,sortName,sortType) =>{
+    return axios.get(`http://tower.watu.fi:8080/students?page=${page}&size=${size}&sort=${sortName}&${sortName}.dir=${sortType}`)
         .then(res =>{
             return res.data;
         })
+        .catch(err =>{
+            alert(err.message);
+        })
 }
 
-export const getStudentListByLastName = (name) =>{
-    return axios.get(`http://tower.watu.fi:8080/students/search/findByLastName?name=${name}`)
+export const getStudentDetail = (studentId) =>{
+    return axios.get(`http://tower.watu.fi:8080/students/${studentId}`)
         .then(res =>{
             return res.data;
+        })
+        .catch(err =>{
+            alert(err.message);
+        })
+}
+
+export const findStudentListByFirstNameAndLastName = (firstName,lastName) =>{
+    return axios.get(`http://tower.watu.fi:8080/students/search/findByFirstNameIgnoreCaseContainingOrLastNameIgnoreCaseContaining?firstName=${firstName}&lastName=${lastName}`)
+        .then(res =>{
+            return res.data;
+        })
+        .catch(err =>{
+            alert(err.message);
+        })
+}
+
+export const assignStudentlistToTeacher = (teacherId,studentIds) =>{
+    return axios.get(`http://tower.watu.fi:8080/plan/${teacherId}/${studentIds}`)
+        .then(res =>{
+            return res.data;
+        })
+        .catch(err =>{
+            alert(err.message);
         })
 }

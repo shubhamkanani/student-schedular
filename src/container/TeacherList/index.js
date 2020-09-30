@@ -1,31 +1,60 @@
 import React, { useEffect, useState } from 'react'
-import {useSelector} from 'react-redux'
+import { useSelector, useDispatch } from 'react-redux'
 import 'antd/dist/antd.css';
 import { useHistory } from 'react-router-dom'
-import { Table, PageHeader, Button, Spin } from 'antd';
-import { getTeacherList, getTeacherListByFirstName, getTeacherListByLastName } from '../../services/Teacher'
-
+import { Table, PageHeader, Button, Spin, Popconfirm, message } from 'antd';
+import { getTeacherList, findTeacherListByFirstNameAndLastName } from '../../services/Teacher'
+import { assignStudentlistToTeacher } from '../../services/Student'
+import { assignStudents } from '../../Action-Reducer/Student/action'
 import SearchFilter from '../../components/TeacherList/SearchFilter'
 //import AssignStudent from '../../components/TeacherList/AssignStudent'
+//icon
 
+import { VerticalAlignBottomOutlined, VerticalAlignTopOutlined } from "@ant-design/icons"
 function TeacherList() {
     const history = useHistory();
+    const dispatch = useDispatch();
     const assignStudentList = useSelector((state) => {
-        return state.Student;
-      })
+        return state.Student.assignStudent;
+    })
     const [teacherList, setTeacherList] = useState();
+    const [sortingName, setSortingName] = useState("");
+    const [sortingType, setSortingType] = useState("");
     const [tableProps, setTableProps] = useState({
         totalCount: 0,
         pageIndex: 0,
         pageSize: 30,
     });
     const [search, setSearch] = useState({
-        searchValue: "",
-        searchType: "firstName",
+        name:"",
+        firstName:"",
+        lastName:"",
     })
+    const Assigntitle = <div>
+        <h3>Assign Student List</h3>
+        {assignStudentList.map((student, index) => {
+            return <div key={student.id}>
+                <spann>{index + 1}. {student.firstName} {student.lastName}</spann>
+            </div>
+        })}
+    </div>
     const columns = [
         {
-            title: 'Name',
+            title: <div><span>Name </span>
+                {sortingName === "firstName" && sortingType==="asc" && <VerticalAlignBottomOutlined />}
+                {sortingName === "firstName" && sortingType==="desc" && <VerticalAlignTopOutlined />}
+                {sortingName === "firstName" && sortingType==="" && ""}
+            </div>,
+            onHeaderCell: (column) => {
+                return {
+                    onClick: () => {
+                        setSortingName("firstName");
+                        if (sortingType == "") { setSortingType("asc") }
+                        else if (sortingType == "asc") { setSortingType("desc") }
+                        else if (sortingType == "desc") { setSortingType("");setSortingName(""); }
+                    }
+                };
+            },
             render: (record) => (
                 <div>
                     {record.firstName + " " + record.lastName}
@@ -42,6 +71,16 @@ function TeacherList() {
         {
             title: 'Subjects',
             key: 'subjects',
+            // onHeaderCell: (column) => {
+            //     return {
+            //         onClick: () => {
+            //             setSortingName("subject");
+            //             if (sortingType == "") { setSortingType("asc") }
+            //             else if (sortingType == "asc") { setSortingType("desc") }
+            //             else if (sortingType == "desc") { setSortingType("") }
+            //         }
+            //     };
+            // },
             render: (record) => (
                 <div>
                     {
@@ -70,9 +109,31 @@ function TeacherList() {
             title: 'Action',
             key: 'operation',
             fixed: 'right',
-            render:(record) => {
+            render: (record) => {
+                const confirm = (e) => {
+                    let studentIdArray = [];
+                    assignStudentList.map((student) => {
+                        studentIdArray.push(student.id)
+                    })
+                    let studentIds = studentIdArray.join(',');
+                    assignStudentlistToTeacher(record.id, studentIds)
+                        .then(res => { console.log(res) })
+                }
                 return (
-                    <Button onClick={()=>{console.log(assignStudentList)}}>Assign Students</Button>
+                    <div>
+                        <Popconfirm
+                            icon={false}
+                            title={Assigntitle}
+                            placement="left"
+                            onConfirm={confirm}
+                            onCancel={() => { dispatch(assignStudents([])) }}
+                            okText="Assign"
+                            cancelText="Cancel"
+                            disabled={assignStudentList.length > 0 ? false : true}
+                        >
+                            <Button disabled={assignStudentList.length > 0 ? false : true}>Assign Students</Button>
+                        </Popconfirm>
+                    </div>
                 )
             },
         },
@@ -80,9 +141,14 @@ function TeacherList() {
     useEffect(() => {
         getListView();
     }, [tableProps.pageIndex]);
+    useEffect(() => {
+        getListView();
+    }, [sortingType,sortingName]);
     const getListView = () => {
-        if (search.searchValue === "") {
-            getTeacherList(tableProps.pageIndex, tableProps.pageSize).then(data => {
+        console.log(sortingType);
+        setTeacherList("");
+        if (search.firstName === "" && search.lastName === "") {
+            getTeacherList(tableProps.pageIndex, tableProps.pageSize, sortingName, sortingType).then(data => {
                 setTeacherList(data._embedded.teachers)
                 setTableProps({
                     ...tableProps,
@@ -91,26 +157,15 @@ function TeacherList() {
             })
         }
         else {
-            if (search.searchType === "firstName") {
-                getTeacherListByFirstName(search.searchValue).then(data => {
-                    setTeacherList(data._embedded.teachers)
-                    setTableProps({
-                        totalCount: 1,
-                        pageIndex: 0,
-                        pageSize: 30,
-                    });
-                })
-            }
-            else if (search.searchType === "lastName") {
-                getTeacherListByLastName(search.searchValue).then(data => {
-                    setTeacherList(data._embedded.teachers)
-                    setTableProps({
-                        totalCount: 1,
-                        pageIndex: 0,
-                        pageSize: 30,
-                    });
-                })
-            }
+
+            findTeacherListByFirstNameAndLastName(search.firstName,search.lastName).then(data => {
+                setTeacherList(data._embedded.teachers)
+                setTableProps({
+                    totalCount: 1,
+                    pageIndex: 0,
+                    pageSize: 30,
+                });
+            })
         }
     }
     const handleTableChange = (pagination, filters, sorter) => {
@@ -124,6 +179,15 @@ function TeacherList() {
     const changeSearch = (e) => {
         const { name, value } = e.target;
         setSearch({ ...search, [name]: value });
+        if(e.target.name==="name"){
+            var nameData = value.split(" ");
+            if(nameData.length>1){
+                setSearch({ ...search, firstName: nameData[0],lastName: nameData[1] });
+            }
+            else{
+                setSearch({ ...search, firstName: nameData[0],lastName: nameData[0] });
+            }
+        }
     };
     const searchList = () => {
         getListView();
@@ -140,7 +204,6 @@ function TeacherList() {
             <SearchFilter
                 changeInput={changeSearch}
                 searchList={searchList}
-                defultType={search.searchType}
             />
             {!teacherList ? <Spin className="loading-table" /> :
                 <Table
