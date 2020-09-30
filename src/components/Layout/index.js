@@ -10,13 +10,20 @@ import {
 const { Sider, Content } = Layout;
 
 function LayoutOfApp({ children }, props) {
+  //const { path, params } = props.match;
   const history = useHistory();
-  const [pathName,setPathName]=useState( window.location.pathname);
+  const [pathName,setPathName]=useState(window.location.pathname);
+  useEffect(()=>{
+      console.log("pathname",window.location.pathname)
+    setPathName(window.location.pathname);
+    console.log(pathName);
+  },[window.location.pathname])
   return (
     <Layout>
       <Sider className="sider">
         <h1>Student-Schedular</h1>
-        <Menu theme="dark" mode="inline" defaultSelectedKeys={[pathName]}>
+        {console.log("inner pathename:", pathName)}
+        <Menu theme="dark" mode="inline" selectedKeys={[pathName]}>
           <Menu.Item key="/teacherlist" icon={<VideoCameraOutlined />} onClick={() => { history.push('/teacherlist') }}>
             Teacher List
             </Menu.Item>

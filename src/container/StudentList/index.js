@@ -7,7 +7,7 @@ import '../../Assets/container/StudentList.css'
 import { getStudentList, findStudentListByFirstNameAndLastName, } from '../../services/Student'
 import SearchFilter from '../../components/StudentList/SearchFilter'
 import { assignStudents } from '../../Action-Reducer/Student/action'
-
+import LayoutOfApp from '../../components/Layout'
 //icon
 
 import { VerticalAlignBottomOutlined, VerticalAlignTopOutlined } from "@ant-design/icons"
@@ -219,6 +219,9 @@ function StudentList() {
         setStudentList([]);
     };
     return (
+        <React.Fragment>
+            
+        {/* <LayoutOfApp> */}
         <PageHeader
             ghost={false}
             title="Student List View"
@@ -260,6 +263,8 @@ function StudentList() {
                 />}
 
         </PageHeader>
+        {/* </LayoutOfApp> */}
+        </React.Fragment>
     )
 }
 export default StudentList

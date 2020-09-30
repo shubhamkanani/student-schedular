@@ -188,6 +188,7 @@ function TeacherList() {
     const changeSearch = (e) => {
         const { name, value } = e.target;
         setSearch({ ...search, [name]: value });
+        console.log("Enter:",value)
         if(e.target.name==="name"){
             var nameData = value.split(" ");
             if(nameData.length>1){
