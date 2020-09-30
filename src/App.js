@@ -11,20 +11,20 @@ function App() {
   return (
 
          <BrowserRouter>
-               
+               <LayoutOfApp>
               <React.Suspense fallback={<div>Loading... </div>}>
             
             <Switch>
-            <LayoutOfApp>
+            
               <Route exact path="/studentlist/teacher/:id" name="StudentOfTeacher Page" render={props => <StudentsOfTeacher {...props}/>} />
               <Route exact path="/teacherlist" name="Teacher Page" render={props => <TeacherList {...props}/>} />
               <Route exact path="/studentlist" name="Student Page" render={props => <StudentList {...props}/>} />
               <Route exact path="/studentlist/studentDetail/:id" name="Student Page" render={props => <StudentDetail {...props}/>} />
               <Redirect from="/" to="/teacherlist" />
-              </LayoutOfApp>
+              
             </Switch>
           </React.Suspense>
-          
+          </LayoutOfApp>
         </BrowserRouter>
   );
 }
