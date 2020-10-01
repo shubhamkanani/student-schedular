@@ -11,7 +11,7 @@ export const getStudentListById = (TeacherId) =>{
 }
 
 export const getStudentList = (page,size,sortName,sortType) =>{
-    return axios.get(`http://tower.watu.fi:8080/students?page=${page}&size=${size}&sort=${sortName}&${sortName}.dir=${sortType}`)
+    return axios.get(`http://tower.watu.fi:8080/students?page=${page}&size=${size}&sort=${sortName},${sortType}`)
         .then(res =>{
             return res.data;
         })
