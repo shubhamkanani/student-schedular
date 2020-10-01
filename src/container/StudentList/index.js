@@ -131,6 +131,21 @@ function StudentList() {
         ,
         {
             title: 'Teacher Name',
+            title: <div><span>Teacher Name </span>
+                {sortingName === "teacher.firstName" && sortingType === "asc" && <VerticalAlignBottomOutlined />}
+                {sortingName === "teacher.firstName" && sortingType === "desc" && <VerticalAlignTopOutlined />}
+                {sortingName === "teacher.firstName" && sortingType === "" && ""}
+            </div>,
+            onHeaderCell: (column) => {
+                return {
+                    onClick: () => {
+                        setSortingName("teacher.firstName");
+                        if (sortingType == "") { setSortingType("asc") }
+                        else if (sortingType == "asc") { setSortingType("desc") }
+                        else if (sortingType == "desc") { setSortingType(""); setSortingName(""); }
+                    }
+                };
+            },
             render: (record) => {
                 var isSubjectContains = record.teacher.subjects.includes(record.subject)
                 const text = <div className="grade-coloumn-tooltip">
